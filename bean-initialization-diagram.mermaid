@@ -1,0 +1,19 @@
+flowchart TB
+    A[ProxyApplication 실행] --> B[Spring Container 초기화]
+    B --> C["@Import(AppV2Config.class) 처리"]
+    C --> D["AppV2Config의 @Bean 메서드 실행"]
+    
+    subgraph "Bean 생성 및 의존성 주입"
+        D --> E["orderRepositoryV2() 호출"]
+        E --> F["OrderRepositoryV2 인스턴스 생성"]
+        D --> G["orderServiceV2() 호출"]
+        G --> H["OrderServiceV2 인스턴스 생성"]
+        G --> I["orderRepositoryV2 주입"]
+        D --> J["orderControllerV2() 호출"]
+        J --> K["OrderControllerV2 인스턴스 생성"]
+        J --> L["orderServiceV2 주입"]
+    end
+    
+    M["CommandLineRunner 실행<br>빈 목록 출력"] --> N["애플리케이션 준비 완료<br>HTTP 요청 대기"]
+    
+    B --> M
