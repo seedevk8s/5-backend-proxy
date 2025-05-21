@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Import;
 
 @Import(AppV2Config.class)
-@SpringBootApplication(scanBasePackages = "com.choongang.proxy.app")
+@SpringBootApplication(scanBasePackages = {"com.choongang.proxy.app"})
 public class ProxyApplication {
 
     public static void main(String[] args) {
