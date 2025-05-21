@@ -1,0 +1,17 @@
+sequenceDiagram
+    participant Client as 브라우저
+    participant SC as Spring Container
+    participant OC as OrderControllerV2
+    participant OS as OrderServiceV2
+    participant OR as OrderRepositoryV2
+    
+    Client->>SC: GET /v2/request?itemId=choongang
+    Note over SC: 요청 URL 매핑
+    SC->>OC: request(itemId="choongang")
+    OC->>OS: orderItem("choongang")
+    OS->>OR: save("choongang")
+    Note over OR: 1000ms sleep 실행
+    OR-->>OS: 완료
+    OS-->>OC: 완료
+    OC-->>SC: "ok" 반환
+    SC-->>Client: HTTP 200 OK, body: "ok"
