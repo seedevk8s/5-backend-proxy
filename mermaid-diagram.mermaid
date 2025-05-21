@@ -1,0 +1,21 @@
+sequenceDiagram
+    participant Client as 브라우저 클라이언트
+    participant Gateway as API Gateway(8080)
+    participant ProxyController as ProxyController
+    participant ServiceRouter as ServiceRouter
+    participant BackendServiceV2 as Backend Service V2
+    participant Database as 데이터베이스
+    
+    Client->>Gateway: GET http://localhost:8080/v2/request?itemId=choongang
+    Gateway->>ProxyController: 요청 전달
+    ProxyController->>ProxyController: 요청 URL 분석
+    Note over ProxyController: URL '/v2/request' 분석, 버전 확인(v2)
+    ProxyController->>ServiceRouter: 라우팅 결정 요청(버전 기반)
+    ServiceRouter->>ServiceRouter: 버전 v2에 따른 서비스 결정
+    ServiceRouter-->>ProxyController: BackendServiceV2 반환
+    ProxyController->>BackendServiceV2: 요청 전달(itemId=choongang)
+    BackendServiceV2->>Database: 데이터 조회 요청(itemId=choongang)
+    Database-->>BackendServiceV2: 데이터 반환
+    BackendServiceV2-->>ProxyController: 응답 데이터 반환
+    ProxyController-->>Gateway: 응답 전달
+    Gateway-->>Client: 최종 응답 전달
