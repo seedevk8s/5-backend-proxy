@@ -15,7 +15,7 @@ public class OrderControllerV1 {
      * @param itemId 상품 아이디
      * @return 결과
      */
-    @GetMapping("/v2/request")
+    @GetMapping("/v1/request")
     public String request(String itemId) {
         orderService.orderItem(itemId);
         return "ok";
