@@ -1,0 +1,35 @@
+classDiagram
+    class ProxyApplication {
+        +main(String[] args)
+        +printBeans(ApplicationContext) CommandLineRunner
+    }
+    
+    class AppV2Config {
+        +orderControllerV2() OrderControllerV2
+        +orderServiceV2() OrderServiceV2
+        +orderRepositoryV2() OrderRepositoryV2
+    }
+    
+    class OrderControllerV2 {
+        -OrderServiceV2 orderService
+        +OrderControllerV2(OrderServiceV2)
+        +request(String) String
+    }
+    
+    class OrderServiceV2 {
+        -OrderRepositoryV2 orderRepository
+        +OrderServiceV2(OrderRepositoryV2)
+        +orderItem(String) void
+    }
+    
+    class OrderRepositoryV2 {
+        +save(String) void
+        -sleep(int) void
+    }
+    
+    ProxyApplication ..> AppV2Config : @Import
+    AppV2Config ..> OrderControllerV2 : creates
+    AppV2Config ..> OrderServiceV2 : creates
+    AppV2Config ..> OrderRepositoryV2 : creates
+    OrderControllerV2 --> OrderServiceV2 : uses
+    OrderServiceV2 --> OrderRepositoryV2 : uses
