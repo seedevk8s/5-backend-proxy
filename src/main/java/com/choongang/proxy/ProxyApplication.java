@@ -19,7 +19,12 @@ import java.util.Arrays;
 public class ProxyApplication {
 
     public static void main(String[] args) {
+        System.out.println("=== Spring Boot 애플리케이션 시작 ===");
+
+        // Spring Boot 애플리케이션 컨텍스트 생성 및 시작
         SpringApplication.run(ProxyApplication.class, args);
+
+        System.out.println("=== 애플리케이션 컨텍스트 초기화 완료 ===");
     }
 
     // LogTrace를 ThreadLocalLogTrace로 설정하여 스레드마다 독립적인 로그 추적기를 사용하도록 설정
