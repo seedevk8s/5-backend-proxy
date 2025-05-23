@@ -1,0 +1,51 @@
+sequenceDiagram
+    participant Client as 클라이언트
+    participant ControllerProxy as OrderController<br/>Proxy
+    participant LogTrace as ThreadLocal<br/>LogTrace
+    participant Controller as OrderController<br/>(실제 객체)
+    participant ServiceProxy as OrderService<br/>Proxy
+    participant Service as OrderService<br/>(실제 객체)
+    participant RepoProxy as OrderRepository<br/>Proxy
+    participant Repository as OrderRepository<br/>(실제 객체)
+
+    Note over Client, Repository: HTTP 요청: GET /v1/request?itemId=choongang
+
+    Client->>+ControllerProxy: request("choongang")
+    ControllerProxy->>+LogTrace: begin("OrderController.request()")
+    LogTrace-->>-ControllerProxy: TraceStatus [12564b6b]
+    Note over LogTrace: [12564b6b] OrderController.request()
+    
+    ControllerProxy->>+Controller: request("choongang")
+    Controller->>+ServiceProxy: orderItem("choongang")
+    ServiceProxy->>+LogTrace: begin("OrderService.orderItem()")
+    LogTrace-->>-ServiceProxy: TraceStatus [12564b6b]
+    Note over LogTrace: [12564b6b] |-->OrderService.orderItem()
+    
+    ServiceProxy->>+Service: orderItem("choongang")
+    Service->>+RepoProxy: save("choongang")
+    RepoProxy->>+LogTrace: begin("OrderRepository.save()")
+    LogTrace-->>-RepoProxy: TraceStatus [12564b6b]
+    Note over LogTrace: [12564b6b] |   |-->OrderRepository.save()
+    
+    RepoProxy->>+Repository: save("choongang")
+    Note over Repository: 1초 대기 (비즈니스 로직)
+    Repository-->>-RepoProxy: 처리 완료
+    
+    RepoProxy->>+LogTrace: end(TraceStatus, null)
+    LogTrace-->>-RepoProxy: 로그 출력
+    Note over LogTrace: [12564b6b] |   |<--OrderRepository.save() time=1015ms
+    RepoProxy-->>-Service: 결과 반환
+    
+    Service-->>-ServiceProxy: 결과 반환
+    ServiceProxy->>+LogTrace: end(TraceStatus, null)
+    LogTrace-->>-ServiceProxy: 로그 출력
+    Note over LogTrace: [12564b6b] |<--OrderService.orderItem() time=1015ms
+    ServiceProxy-->>-Controller: 결과 반환
+    
+    Controller-->>-ControllerProxy: 결과 반환
+    ControllerProxy->>+LogTrace: end(TraceStatus, null)
+    LogTrace-->>-ControllerProxy: 로그 출력
+    Note over LogTrace: [12564b6b] OrderController.request() time=1015ms
+    ControllerProxy-->>-Client: HTTP 응답
+
+    Note over Client, Repository: JDK 동적 프록시가 내부적으로 InvocationHandler를 통해<br/>메서드 호출을 가로채고 로그 추적 기능을 제공
