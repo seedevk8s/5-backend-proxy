@@ -1,0 +1,38 @@
+classDiagram
+    class Component {
+        <<interface>>
+        +operation() String
+    }
+    
+    class RealComponent {
+        +operation() String
+    }
+    
+    class MessageDecorator {
+        -Component component
+        +MessageDecorator(Component component)
+        +operation() String
+    }
+    
+    class TimeDecorator {
+        -Component component
+        +TimeDecorator(Component component)
+        +operation() String
+    }
+    
+    class DecoratorPatternClient {
+        -Component component
+        +DecoratorPatternClient(Component component)
+        +execute() void
+    }
+    
+    Component <|.. RealComponent
+    Component <|.. MessageDecorator
+    Component <|.. TimeDecorator
+    Component <-- MessageDecorator : has
+    Component <-- TimeDecorator : has
+    Component <-- DecoratorPatternClient : uses
+    
+    note for TimeDecorator "실행 시간을 측정하여\n로그로 출력하는 부가 기능"
+    note for MessageDecorator "메시지를 꾸며주는\n부가 기능"
+    note for RealComponent "실제 비즈니스 로직을\n수행하는 핵심 컴포넌트"

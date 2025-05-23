@@ -1,0 +1,38 @@
+sequenceDiagram
+    participant Client as DecoratorPatternClient
+    participant TD as TimeDecorator
+    participant MD as MessageDecorator
+    participant RC as RealComponent
+    participant Log as Logger
+    
+    Note over Client: decoratorTest2() 실행
+    
+    Client->>TD: operation()
+    
+    TD->>Log: log.info("TimeDecorator 실행")
+    activate TD
+    TD->>TD: startTime = currentTimeMillis()
+    
+    TD->>MD: operation()
+    activate MD
+    MD->>Log: log.info("MessageDecorator 실행")
+    MD->>MD: 메시지 처리 로직
+    
+    MD->>RC: operation()
+    activate RC
+    RC->>Log: log.info("RealComponent 실행")
+    RC->>RC: 실제 비즈니스 로직 수행
+    RC-->>MD: return "data"
+    deactivate RC
+    
+    MD->>MD: result 처리
+    MD-->>TD: return "decorated data"
+    deactivate MD
+    
+    TD->>TD: endTime = currentTimeMillis()
+    TD->>TD: duration = endTime - startTime
+    TD->>Log: log.info("TimeDecorator 경과 시간: {}ms", duration)
+    TD-->>Client: return "decorated data"
+    deactivate TD
+    
+    Note over Client, Log: 모든 부가 기능이 적용된 결과 반환
