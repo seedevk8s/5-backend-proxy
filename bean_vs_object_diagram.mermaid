@@ -1,0 +1,51 @@
+graph TB
+    subgraph SpringContainer["🏛️ Spring Container (IoC Container)"]
+        subgraph RegisteredBeans["📦 등록된 빈들 (Spring이 관리)"]
+            ProxyApp["🚀 ProxyApplication<br/>@SpringBootApplication<br/>빈 이름: proxyApplication"]
+            LogTrace["📊 ThreadLocalLogTrace<br/>@Bean 등록<br/>빈 이름: logTrace"]
+            ApiAdapter["🌐 OrderControllerV1ApiAdapter<br/>@RestController<br/>빈 이름: orderControllerV1ApiAdapter"]
+            ProxyConfig["⚙️ InterfaceProxyConfig<br/>@Configuration<br/>빈 이름: interfaceProxyConfig"]
+            
+            ControllerProxy["🎭 OrderControllerInterfaceProxy<br/>@Bean 등록<br/>빈 이름: orderController<br/>타입: OrderControllerV1"]
+            ServiceProxy["🎭 OrderServiceInterfaceProxy<br/>@Bean 등록<br/>빈 이름: orderService<br/>타입: OrderServiceV1"]
+            RepoProxy["🎭 OrderRepositoryInterfaceProxy<br/>@Bean 등록<br/>빈 이름: orderRepository<br/>타입: OrderRepositoryV1"]
+        end
+    end
+    
+    subgraph RegularObjects["📄 일반 객체들 (Spring이 관리하지 않음)"]
+        ControllerImpl["🏗️ OrderControllerV1Impl<br/>new 연산자로 생성<br/>프록시 내부에서만 사용"]
+        ServiceImpl["🏗️ OrderServiceV1Impl<br/>new 연산자로 생성<br/>프록시 내부에서만 사용"]
+        RepoImpl["🏗️ OrderRepositoryV1Impl<br/>new 연산자로 생성<br/>프록시 내부에서만 사용"]
+    end
+    
+    %% 빈 생성 관계
+    ProxyApp -->|"@Bean 등록"| LogTrace
+    ProxyConfig -->|"@Bean 등록"| ControllerProxy
+    ProxyConfig -->|"@Bean 등록"| ServiceProxy
+    ProxyConfig -->|"@Bean 등록"| RepoProxy
+    
+    %% 의존성 주입 관계
+    ApiAdapter -.->|"DI 주입 (Spring)"| ControllerProxy
+    ControllerProxy -.->|"DI 주입 (Spring)"| LogTrace
+    ServiceProxy -.->|"DI 주입 (Spring)"| LogTrace
+    RepoProxy -.->|"DI 주입 (Spring)"| LogTrace
+    
+    %% 일반 객체 생성 및 포함 관계
+    ControllerProxy ==>|"내부에 포함<br/>(private 필드)"| ControllerImpl
+    ServiceProxy ==>|"내부에 포함<br/>(private 필드)"| ServiceImpl
+    RepoProxy ==>|"내부에 포함<br/>(private 필드)"| RepoImpl
+    
+    %% 일반 객체 간 의존성 (프록시를 통한 간접 의존)
+    ControllerImpl -->|"생성자 주입<br/>(서비스 프록시)"| ServiceProxy
+    ServiceImpl -->|"생성자 주입<br/>(리포지토리 프록시)"| RepoProxy
+    
+    %% 스타일링
+    classDef springBean fill:#e1f5fe,stroke:#01579b,stroke-width:3px,color:#000
+    classDef regularObject fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#000
+    classDef container fill:#f3e5f5,stroke:#4a148c,stroke-width:3px,color:#000
+    classDef proxyObject fill:#e8f5e8,stroke:#2e7d32,stroke-width:3px,color:#000
+    
+    class ProxyApp,LogTrace,ApiAdapter,ProxyConfig springBean
+    class ControllerProxy,ServiceProxy,RepoProxy proxyObject
+    class ControllerImpl,ServiceImpl,RepoImpl regularObject
+    class SpringContainer,RegisteredBeans container
