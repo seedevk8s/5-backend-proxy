@@ -1,0 +1,124 @@
+classDiagram
+    class InterfaceProxyConfig {
+        -LogTrace logTrace
+        +orderControllerV1() OrderControllerV1
+        +orderServiceV1() OrderServiceV1
+        +orderRepositoryV1() OrderRepositoryV1
+        -createProxy(target, logTrace) Object
+    }
+
+    class InvocationHandler {
+        <<interface>>
+        +invoke(proxy, method, args) Object
+    }
+
+    class ProxyInvocationHandler {
+        -Object target
+        -LogTrace logTrace
+        +ProxyInvocationHandler(target, logTrace)
+        +invoke(proxy, method, args) Object
+    }
+
+    class ThreadLocalLogTrace {
+        -ThreadLocal~TraceId~ traceIdHolder
+        +begin(message) TraceStatus
+        +end(status) void
+        +end(status, e) void
+        -syncTraceId() void
+        -releaseTraceId() void
+    }
+
+    class TraceStatus {
+        -TraceId traceId
+        -long startTimeMs
+        -String message
+    }
+
+    class TraceId {
+        -String id
+        -int level
+        +createNextId() TraceId
+        +createPreviousId() TraceId
+        +isFirstLevel() boolean
+    }
+
+    %% 인터페이스 정의
+    class OrderControllerV1 {
+        <<interface>>
+        +request(itemId) String
+    }
+
+    class OrderServiceV1 {
+        <<interface>>
+        +orderItem(itemId) void
+    }
+
+    class OrderRepositoryV1 {
+        <<interface>>
+        +save(itemId) void
+    }
+
+    %% 실제 구현체
+    class OrderControllerV1Impl {
+        -OrderServiceV1 orderService
+        +request(itemId) String
+    }
+
+    class OrderServiceV1Impl {
+        -OrderRepositoryV1 orderRepository
+        +orderItem(itemId) void
+    }
+
+    class OrderRepositoryV1Impl {
+        +save(itemId) void
+    }
+
+    %% 어댑터 패턴 적용
+    class ComponentScanAdapter {
+        <<stereotype>>
+        +adaptToProxy() void
+    }
+
+    %% JDK Dynamic Proxy
+    class ProxyFactory {
+        <<JDK Dynamic Proxy>>
+        +newProxyInstance(classLoader, interfaces, handler) Object
+    }
+
+    %% 관계 설정
+    InterfaceProxyConfig --> ProxyInvocationHandler : creates
+    InterfaceProxyConfig --> ThreadLocalLogTrace : uses
+    InterfaceProxyConfig --> ProxyFactory : creates proxy
+    
+    ProxyInvocationHandler ..|> InvocationHandler : implements
+    ProxyInvocationHandler --> ThreadLocalLogTrace : uses
+    ProxyInvocationHandler --> OrderControllerV1Impl : delegates to
+    ProxyInvocationHandler --> OrderServiceV1Impl : delegates to
+    ProxyInvocationHandler --> OrderRepositoryV1Impl : delegates to
+    
+    ThreadLocalLogTrace --> TraceStatus : creates
+    ThreadLocalLogTrace --> TraceId : manages
+    TraceStatus --> TraceId : contains
+
+    %% 인터페이스 구현
+    OrderControllerV1Impl ..|> OrderControllerV1 : implements
+    OrderServiceV1Impl ..|> OrderServiceV1 : implements
+    OrderRepositoryV1Impl ..|> OrderRepositoryV1 : implements
+
+    %% 프록시 관계
+    ProxyFactory ..> OrderControllerV1 : creates proxy
+    ProxyFactory ..> OrderServiceV1 : creates proxy
+    ProxyFactory ..> OrderRepositoryV1 : creates proxy
+
+    %% 어댑터 패턴
+    ComponentScanAdapter --> OrderControllerV1Impl : adapts
+    ComponentScanAdapter --> OrderServiceV1Impl : adapts
+    ComponentScanAdapter --> OrderRepositoryV1Impl : adapts
+
+    %% 의존성 주입
+    OrderControllerV1Impl --> OrderServiceV1 : depends on
+    OrderServiceV1Impl --> OrderRepositoryV1 : depends on
+
+    note for InterfaceProxyConfig "빈 등록 충돌 해결을 위해\n어댑터 패턴 적용\n동적 프록시 생성 담당"
+    note for ProxyInvocationHandler "JDK 동적 프록시를 위한\nInvocationHandler 구현\n로그 추적 기능 제공"
+    note for ThreadLocalLogTrace "멀티스레딩 환경에서\n스레드별 로그 추적 관리"
