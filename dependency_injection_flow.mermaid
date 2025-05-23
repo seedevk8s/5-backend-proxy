@@ -1,0 +1,59 @@
+graph TD
+    subgraph SpringContainer["🏛️ Spring Container"]
+        subgraph BeanRegistry["📋 Bean Registry (빈 저장소)"]
+            Bean1["📦 빈 이름: 'orderController'<br/>📝 타입: OrderControllerV1<br/>🎭 실제 객체: OrderControllerInterfaceProxy@12345"]
+            Bean2["📦 빈 이름: 'logTrace'<br/>📝 타입: LogTrace<br/>📊 실제 객체: ThreadLocalLogTrace@67890"]
+        end
+    end
+    
+    subgraph CodeLevel["💻 코드 레벨"]
+        subgraph ApiAdapterClass["OrderControllerV1ApiAdapter 클래스"]
+            Constructor["🔧 생성자<br/>public OrderControllerV1ApiAdapter(<br/>    OrderControllerV1 orderController<br/>) {<br/>    this.orderController = orderController;<br/>}"]
+            Field["📝 필드<br/>private final OrderControllerV1 orderController;"]
+        end
+        
+        subgraph WhatDeveloperSees["👨‍💻 개발자가 보는 것"]
+            Interface["📋 OrderControllerV1 orderController<br/>(인터페이스 타입)"]
+        end
+        
+        subgraph WhatSpringDoes["🤖 Spring이 실제로 하는 일"]
+            Step1["1️⃣ OrderControllerV1 타입의 빈 검색"]
+            Step2["2️⃣ 'orderController' 빈 발견"]
+            Step3["3️⃣ OrderControllerInterfaceProxy@12345 객체 가져옴"]
+            Step4["4️⃣ 다형성으로 OrderControllerV1 타입으로 주입"]
+        end
+    end
+    
+    subgraph RuntimeReality["⚡ 런타임 실제 상황"]
+        ActualObject["🎭 실제 주입된 객체<br/>OrderControllerInterfaceProxy@12345<br/>├── target: OrderControllerV1Impl@11111<br/>└── logTrace: ThreadLocalLogTrace@67890"]
+        
+        MethodCall["🎯 메서드 호출<br/>orderController.request('item')<br/>↓<br/>실제로는 프록시 메서드 실행<br/>OrderControllerInterfaceProxy.request('item')"]
+    end
+    
+    %% 화살표 연결
+    Bean1 -.->|"Spring이 찾아서 주입"| Constructor
+    Constructor -->|"필드에 저장"| Field
+    Field -->|"실제로는"| ActualObject
+    ActualObject -->|"메서드 호출 시"| MethodCall
+    
+    Step1 --> Step2
+    Step2 --> Step3
+    Step3 --> Step4
+    Step4 -.-> Constructor
+    
+    Interface -.->|"개발자는 인터페이스만 알고 있음"| WhatSpringDoes
+    
+    %% 스타일링
+    classDef container fill:#e3f2fd,stroke:#0277bd,stroke-width:2px
+    classDef bean fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
+    classDef code fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef spring fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef runtime fill:#ffebee,stroke:#c62828,stroke-width:2px
+    classDef process fill:#e0f2f1,stroke:#00695c,stroke-width:2px
+    
+    class SpringContainer,BeanRegistry container
+    class Bean1,Bean2 bean
+    class CodeLevel,ApiAdapterClass,Constructor,Field code
+    class WhatDeveloperSees,Interface code
+    class WhatSpringDoes,Step1,Step2,Step3,Step4 spring
+    class RuntimeReality,ActualObject,MethodCall runtime

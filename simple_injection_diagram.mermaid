@@ -1,0 +1,40 @@
+graph LR
+    subgraph Developer["👨‍💻 개발자 관점"]
+        DevCode["💻 코드 작성<br/>OrderControllerV1 orderController<br/>(인터페이스 타입만 알고 있음)"]
+    end
+    
+    subgraph Spring["🤖 Spring이 하는 일"]
+        Search["🔍 검색<br/>OrderControllerV1 타입의 빈을 찾아라!"]
+        Find["✅ 발견<br/>'orderController' 빈 발견"]
+        Inject["💉 주입<br/>OrderControllerInterfaceProxy 객체 주입"]
+    end
+    
+    subgraph Reality["⚡ 실제 결과"]
+        RealObject["🎭 실제 주입된 것<br/>OrderControllerInterfaceProxy<br/>├── 📊 로그 추적 기능<br/>└── 🏗️ OrderControllerV1Impl<br/>    (실제 비즈니스 로직)"]
+    end
+    
+    subgraph Usage["🎯 사용할 때"]
+        Call["📞 메서드 호출<br/>orderController.request('item')"]
+        Proxy["🎭 프록시 실행<br/>1. 로그 시작<br/>2. 실제 구현체 호출<br/>3. 로그 종료"]
+    end
+    
+    DevCode --> Search
+    Search --> Find
+    Find --> Inject
+    Inject --> RealObject
+    RealObject --> Call
+    Call --> Proxy
+    
+    %% 큰 화살표로 핵심 포인트 강조
+    Developer -.->|"개발자는 인터페이스만 알아도 됨"| Reality
+    
+    %% 스타일링
+    classDef dev fill:#e3f2fd,stroke:#1976d2,stroke-width:3px
+    classDef spring fill:#e8f5e8,stroke:#388e3c,stroke-width:3px
+    classDef reality fill:#fff3e0,stroke:#f57c00,stroke-width:3px
+    classDef usage fill:#fce4ec,stroke:#c2185b,stroke-width:3px
+    
+    class Developer,DevCode dev
+    class Spring,Search,Find,Inject spring
+    class Reality,RealObject reality
+    class Usage,Call,Proxy usage
