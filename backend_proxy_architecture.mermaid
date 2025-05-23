@@ -1,0 +1,41 @@
+classDiagram
+    class OrderControllerV1 {
+        <<interface>>
+        +request(String itemId) String
+    }
+    
+    class OrderControllerV1Impl {
+        -OrderServiceV1 orderService
+        +request(String itemId) String
+    }
+    
+    class OrderServiceV1 {
+        <<interface>>
+        +orderItem(String itemId) void
+    }
+    
+    class OrderServiceV1Impl {
+        -OrderRepositoryV1 orderRepository
+        +orderItem(String itemId) void
+    }
+    
+    class OrderRepositoryV1 {
+        <<interface>>
+        +save(String itemId) void
+    }
+    
+    class OrderRepositoryV1Impl {
+        +save(String itemId) void
+        -sleep(int millis) void
+    }
+    
+    OrderControllerV1Impl ..|> OrderControllerV1
+    OrderServiceV1Impl ..|> OrderServiceV1
+    OrderRepositoryV1Impl ..|> OrderRepositoryV1
+    
+    OrderControllerV1Impl --> OrderServiceV1
+    OrderServiceV1Impl --> OrderRepositoryV1
+    
+    note for OrderControllerV1Impl "GET /v1/request\n@RestController"
+    note for OrderServiceV1Impl "@Service"
+    note for OrderRepositoryV1Impl "@Repository\n저장 로직 포함\n예외 처리 ('ex' 입력시)\n1초 지연 처리"
