@@ -2,6 +2,7 @@ package com.choongang.proxy.pureproxy.decorator;
 
 import com.choongang.proxy.pureproxy.decorator.code.Component;
 import com.choongang.proxy.pureproxy.decorator.code.DecoratorPatternClient;
+import com.choongang.proxy.pureproxy.decorator.code.MessageDecorator;
 import com.choongang.proxy.pureproxy.decorator.code.RealComponent;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,20 @@ public class DecoratorPatternTest {
         // given
         Component realComponent = new RealComponent();
         DecoratorPatternClient client = new DecoratorPatternClient(realComponent);
+
+        // when
+        client.execute();
+
+        // then
+        // log.info("result = {}", result);
+    }
+
+    @Test
+    void decoratorTest1() {
+        // given
+        Component realComponent = new RealComponent();
+        Component messageDecorator = new MessageDecorator(realComponent);
+        DecoratorPatternClient client = new DecoratorPatternClient(messageDecorator);
 
         // when
         client.execute();
