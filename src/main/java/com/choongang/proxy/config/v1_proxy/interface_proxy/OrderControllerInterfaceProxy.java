@@ -18,10 +18,6 @@ public class OrderControllerInterfaceProxy implements OrderControllerV1 {
      */
     @Override
     public String request(String itemId) {
-        //log.info("OrderController.request() 호출");
-        //log.info("target = {}", target.getClass());
-        //log.info("itemId = {}", itemId);
-
         // 로그 시작
         TraceStatus status = null;
         try {
